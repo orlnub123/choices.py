@@ -32,14 +32,15 @@ class ChoicesMeta(enum.EnumMeta):
         enum_dict = enum.EnumMeta.__prepare__(name, bases)
         choices_dict = _ChoicesDict()
         choices_dict.update(enum_dict)
-        if Choices in bases:
-            build_class = lambda func, name, display=None: (
-                _original_build_class(func, name, Group, display=display))
-            builtins.__build_class__ = build_class
+        builtins.__build_class__ = lambda func, name, display=None: (
+            _original_build_class(func, name, Group, display=display))
         return choices_dict
 
     def __new__(cls, name, bases, namespace):
         builtins.__build_class__ = _original_build_class
+        invalid_name = set(namespace._choice_names) & {'choices'}
+        if invalid_name:
+            raise ValueError("Invalid choice name: {}".format(*invalid_name))
         enum = super().__new__(cls, name, bases, namespace)
         enum._choice_names_ = namespace._choice_names
         enum._group_map_ = namespace._group_map
@@ -82,13 +83,10 @@ class GroupMeta(enum.EnumMeta):
         return enum.EnumMeta.__prepare__(*args)
 
     def __new__(cls, name, bases, namespace, display=None):
-        invalid_names = set(namespace._member_names) & {'display'}
-        if invalid_names:
-            if len(invalid_names) > 1:
-                message = "Invalid group member names: {}"
-            else:
-                message = "Invalid group member name: {}"
-            raise ValueError(message.format(', '.join(invalid_names)))
+        invalid_name = set(namespace._member_names) & {'display'}
+        if invalid_name:
+            message = "Invalid group choice name: {}"
+            raise ValueError(message.format(*invalid_name))
         group = super().__new__(cls, name, bases, namespace)
         group._display_ = display
         return group
