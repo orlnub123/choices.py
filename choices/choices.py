@@ -46,8 +46,9 @@ class ChoicesMeta(enum.EnumMeta):
 
     def __new__(cls, name, bases, namespace):
         builtins.__build_class__ = _original_build_class
-        cls._groups = namespace._groups
-        return super().__new__(cls, name, bases, namespace)
+        enum = super().__new__(cls, name, bases, namespace)
+        enum._groups = namespace._groups
+        return enum
 
 
 class ChoicesBase(enum.Enum):
