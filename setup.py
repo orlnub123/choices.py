@@ -18,6 +18,7 @@ setup(
     version=version,
     description="A wrapper around Django's choices.",
     long_description=readme,
+    long_description_content_type='text/markdown',
     url='https://github.com/orlnub123/choices.py',
     author='orlnub123',
     license='MIT',
