@@ -2,18 +2,10 @@ import builtins
 import enum
 import types
 
+from .utils import group_name, skip
+
 
 _original_build_class = builtins.__build_class__
-
-
-# Define own skip instead of requiring aenum
-class skip:
-
-    def __init__(self, value):
-        self.value = value
-
-    def __get__(self, instance, owner):
-        return self.value
 
 
 class _ChoicesDict(enum._EnumDict):
@@ -102,7 +94,7 @@ class GroupMeta(enum.EnumMeta):
         return group
 
     def __repr__(cls):
-        return '<enum {!r}>'.format('.'.join(cls.__qualname__.split('.')[-2:]))
+        return '<enum {!r}>'.format(group_name(cls))
 
     @property
     def display(cls):
@@ -123,12 +115,10 @@ class Group(ChoicesBase):
 
     def __repr__(self):
         return '<{}.{}: {!r}>'.format(
-            '.'.join(self.__class__.__qualname__.split('.')[-2:]), self._name_,
-            self._value_)
+            group_name(self.__class__), self._name_, self._value_)
 
     def __str__(self):
-        return '{}.{}'.format(
-            '.'.join(self.__class__.__qualname__.split('.')[-2:]), self._name_)
+        return '{}.{}'.format(group_name(self.__class__), self._name_)
 
 
 Choices.__class__ = ChoicesMeta
