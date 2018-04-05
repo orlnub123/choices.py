@@ -47,7 +47,7 @@ class ChoicesMeta(enum.EnumMeta):
     def __new__(cls, name, bases, namespace):
         builtins.__build_class__ = _original_build_class
         enum = super().__new__(cls, name, bases, namespace)
-        enum._groups = namespace._groups
+        enum._groups_ = namespace._groups
         return enum
 
 
@@ -72,7 +72,7 @@ class Choices(ChoicesBase):
     def choices(cls):
         # Merge groups and enum members while keeping order
         index, members, enum_members = 0, [], list(cls)
-        for group in cls._groups:
+        for group in cls._groups_:
             if group is None:
                 members.append(enum_members[index])
                 index += 1
