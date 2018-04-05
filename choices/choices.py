@@ -20,16 +20,18 @@ class _ChoicesDict(enum._EnumDict):
 
     def __init__(self):
         super().__init__()
-        self._groups = []
+        self._choice_names = []
+        self._group_map = {}
 
     def __setitem__(self, key, value):
         if isinstance(value, type) and issubclass(value, Group):
-            self._groups.append(value)
+            if key in self._group_map:
+                raise TypeError("Attempted to reuse key: {!r}".format(key))
+            self._group_map[key] = value
             value = skip(value)
-        old_len = len(self._member_names)
         super().__setitem__(key, value)
-        if len(self._member_names) > old_len:
-            self._groups.append(None)
+        if key in self._member_names or key in self._group_map:
+            self._choice_names.append(key)
 
 
 class ChoicesMeta(enum.EnumMeta):
@@ -47,7 +49,8 @@ class ChoicesMeta(enum.EnumMeta):
     def __new__(cls, name, bases, namespace):
         builtins.__build_class__ = _original_build_class
         enum = super().__new__(cls, name, bases, namespace)
-        enum._groups_ = namespace._groups
+        enum._choice_names_ = namespace._choice_names
+        enum._group_map_ = namespace._group_map
         return enum
 
 
@@ -70,22 +73,15 @@ class Choices(ChoicesBase):
 
     @classmethod
     def choices(cls):
-        # Merge groups and enum members while keeping order
-        index, members, enum_members = 0, [], list(cls)
-        for group in cls._groups_:
-            if group is None:
-                members.append(enum_members[index])
-                index += 1
-            else:
-                members.append(group)
-        for member in members:
-            if isinstance(member, type) and issubclass(member, Group):
-                group, group_display, group_items = member, member.display, []
-                for member in group:
-                    group_items.append((member.value, member.display))
-                yield (group_display, group_items)
-            else:
-                yield (member.value, member.display)
+        for name in cls._choice_names_:
+            if name in cls._member_names_:
+                choice = cls._member_map_[name]
+                yield (choice.value, choice.display)
+            elif name in cls._group_map_:
+                group = cls._group_map_[name]
+                group_choices = [(choice.value, choice.display)
+                                 for choice in group]
+                yield (group.display, group_choices)
 
 
 class GroupMeta(enum.EnumMeta):
