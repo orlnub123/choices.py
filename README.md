@@ -13,6 +13,7 @@ from choices import Choices
 class Student(models.Model):
 
     class Year(Choices):
+
         FRESHMAN = 'FR'
         SOPHOMORE = 'SO'
         JUNIOR = 'JR'
@@ -22,8 +23,8 @@ class Student(models.Model):
         def is_upperclass(self):
             return self in (self.JUNIOR, self.SENIOR)
 
-    year_in_school = models.CharField(max_length=2, choices=Year.choices(),
-                                      default=Year.FRESHMAN.value)
+    year_in_school = models.CharField(
+        max_length=2, choices=Year.choices(), default=Year.FRESHMAN.value)
 
     def is_upperclass(self):
         return self.Year(self.year_in_school).is_upperclass
