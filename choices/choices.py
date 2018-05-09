@@ -113,10 +113,10 @@ class Group(ChoicesBase):
 
     def __repr__(self):
         return '<{}.{}: {!r}>'.format(
-            group_name(self.__class__), self._name_, self._value_)
+            group_name(type(self)), self._name_, self._value_)
 
     def __str__(self):
-        return '{}.{}'.format(group_name(self.__class__), self._name_)
+        return '{}.{}'.format(group_name(type(self)), self._name_)
 
 
 Choices.__class__ = ChoicesMeta
