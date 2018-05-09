@@ -23,6 +23,7 @@ setup(
     author='orlnub123',
     license='MIT',
     packages=['choices'],
+    python_requires='>=3.4',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Framework :: Django',
