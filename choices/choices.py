@@ -2,7 +2,7 @@ import builtins
 import enum
 import types
 
-from .utils import group_name, skip
+from .utils import group_name, skip, with_prev_and_next
 
 
 _original_build_class = builtins.__build_class__
@@ -97,15 +97,12 @@ class GroupMeta(enum.EnumMeta):
     @property
     def display(cls):
         if cls._display_ is None:
-            display, name = '', cls.__name__
-            for index, char in enumerate(name):
-                if 0 < index < len(name)-1:
-                    prev_lower = char.isupper() and name[index-1].islower()
-                    next_lower = char.isupper() and name[index+1].islower()
-                    if prev_lower or next_lower:
-                        display += ' '
+            display = cls.__name__[0]
+            for prev, char, next in with_prev_and_next(cls.__name__):
+                if char.isupper() and (prev.islower() or next.islower()):
+                    display += ' '
                 display += char
-            return display
+            return display + cls.__name__[-1]
         return cls._display_
 
 
