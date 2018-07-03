@@ -36,12 +36,12 @@ class ChoicesMeta(enum.EnumMeta):
             _original_build_class(func, name, Group, display=display))
         return choices_dict
 
-    def __new__(cls, name, bases, namespace):
+    def __new__(meta, name, bases, namespace):
         builtins.__build_class__ = _original_build_class
         invalid_name = set(namespace._choice_names) & {'choices'}
         if invalid_name:
             raise ValueError("Invalid choice name: {}".format(*invalid_name))
-        enum = super().__new__(cls, name, bases, namespace)
+        enum = super().__new__(meta, name, bases, namespace)
         enum._choice_names_ = namespace._choice_names
         enum._group_map_ = namespace._group_map
         return enum
@@ -82,12 +82,12 @@ class GroupMeta(enum.EnumMeta):
     def __prepare__(*args, display=None):
         return enum.EnumMeta.__prepare__(*args)
 
-    def __new__(cls, name, bases, namespace, display=None):
+    def __new__(meta, name, bases, namespace, display=None):
         invalid_name = set(namespace._member_names) & {'display'}
         if invalid_name:
             message = "Invalid group choice name: {}"
             raise ValueError(message.format(*invalid_name))
-        group = super().__new__(cls, name, bases, namespace)
+        group = super().__new__(meta, name, bases, namespace)
         group._display_ = display
         return group
 
