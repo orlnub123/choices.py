@@ -28,8 +28,9 @@ class _ChoicesDict(enum._EnumDict):
 
 class ChoicesMeta(enum.EnumMeta):
 
-    def __prepare__(name, bases):
-        enum_dict = enum.EnumMeta.__prepare__(name, bases)
+    @classmethod
+    def __prepare__(meta, name, bases):
+        enum_dict = super().__prepare__(name, bases)
         choices_dict = _ChoicesDict()
         choices_dict.update(enum_dict)
         builtins.__build_class__ = lambda func, name, display=None: (
@@ -79,8 +80,9 @@ class Choices(ChoicesBase):
 
 class GroupMeta(enum.EnumMeta):
 
-    def __prepare__(*args, display=None):
-        return enum.EnumMeta.__prepare__(*args)
+    @classmethod
+    def __prepare__(meta, *args, display=None):
+        return super().__prepare__(*args)
 
     def __new__(meta, name, bases, namespace, display=None):
         invalid_name = set(namespace._member_names) & {'display'}
